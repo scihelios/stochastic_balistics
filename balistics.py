@@ -120,9 +120,6 @@ window=Tk()
 window.title("nouvelle composition")
 
 window.geometry('600x600')
-window.tk.call("source","azure.tcl")
-
-window.tk.call("set_theme","dark")
 
 
 
