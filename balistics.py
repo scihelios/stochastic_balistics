@@ -156,7 +156,7 @@ import requests
 import json
 
 # Your OpenWeatherMap API key
-api_key = "bdecd96ba1a824654847f25865b68e33"
+api_key = ""
 
 # Location parameters (latitude and longitude)
 lat = 45.5236
