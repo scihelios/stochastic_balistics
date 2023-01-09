@@ -37,9 +37,6 @@ def AD(altitude,g):
 	return ro*(TSL/(TSL+L_rate*altitude))**(1+(g*M)/(R*L_rate))
 
 
-
-
-
 def calculate_traj(v0,alpha,psi,coeff,mass,prec):
 	#constants:
 	R=6370000
@@ -99,6 +96,8 @@ def calculate_trajectory():
 	coeff=(0.5*0.25*(diam**2)*m.pi)/4
 	prec=300
 
+	
+
 	g=calculate_traj(v0,alpha,psi,coeff,mass,prec)
 
 	ax = plt.axes(projection='3d')
@@ -147,16 +146,35 @@ textc.place(relx=0.7, rely=0.5, anchor=W)
 lblc = Label(window, text="projectile mass : ",font=("Arial Bold", 15))
 lblc.place(relx=0.2, rely=0.6, anchor=W)
 textd.place(relx=0.7, rely=0.6, anchor=W)
-'''
-lblv = Label(window, text="Nombre total de mesure  : ",font=("Arial Bold", 15))
-lblv.place(relx=0.2, rely=0.7, anchor=W)
-texte.place(relx=0.7, rely=0.7, anchor=W)'''
-
 
 btncomm1 = Button(window, text="FIRE !", command=calculate_trajectory)
 btncomm1.place(relx=0.5, rely=0.875, anchor=CENTER)
 
 
+'''
+import requests
+import json
+
+# Your OpenWeatherMap API key
+api_key = "bdecd96ba1a824654847f25865b68e33"
+
+# Location parameters (latitude and longitude)
+lat = 45.5236
+lon = -122.6750
+
+# API request URL
+url = f"https://api.openweathermap.org/data/2.5/forecast?id=524901&appid={api_key}"
+
+
+# Send the request and get the response
+response = requests.get(url)
+
+# Parse the response
+data = json.loads(response.text)
+
+# Print the temperature in degrees Celsius
+
+print(data)'''
 
 
 
