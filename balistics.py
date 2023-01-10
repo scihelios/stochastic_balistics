@@ -27,19 +27,20 @@ class FullScreenApp(object):
 		self._geom=geom
 
 
+#see project report to understand further
 def AD(altitude,g):
-	TSL=284.15
-	L_rate=6.5*0.001
+	TSL=284.15 #temperatyre at sea level in kelvin
+	L_rate=6.5*0.001 # lapse rate in C° per meter
 	M=0.0289644
 	R=8.3144598
-	ro=1.252
+	ro=1.252 #in kg/M^3
 
 	return ro*(TSL/(TSL+L_rate*altitude))**(1+(g*M)/(R*L_rate))
 
 
 def calculate_traj(v0,alpha,psi,coeff,mass,prec):
 	#constants:
-	R=6370000
+	R=6370000 #earth radius in meters
 	g=9.80665
 	new_g=[g]
 
