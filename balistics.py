@@ -29,78 +29,71 @@ class FullScreenApp(object):
 
 #see project report to understand further
 def AD(altitude,g):
-	TSL=284.15 #temperatyre at sea level in kelvin
-	L_rate=6.5*0.001 # lapse rate in C° per meter
-	M=0.0289644
-	R=8.3144598
-	ro=1.252 #in kg/M^3
+	TSL = 284.15 # temperatyre at sea level in kelvin
+	L_rate = 6.5*0.001 # lapse rate in C° per meter
+	M = 0.0289644 # molare mass of the air
+	R = 8.3144598
+	ro = 1.252 # in kg/M^3
 
-	return ro*(TSL/(TSL+L_rate*altitude))**(1+(g*M)/(R*L_rate))
+	return ro * (TSL/(TSL+L_rate*altitude))**(1+(g*M)/(R*L_rate))
 
 
 def calculate_traj(v0,alpha,psi,coeff,mass,prec):
 	#constants:
-	R=6370000 #earth radius in meters
-	g=9.80665
-	new_g=[g]
+	R = 6370000 # earth radius in meters
+	g = 9.80665
+	new_g = [g] # a list for gravity at different points of the trajectory
 
 	#prec and airtime in ms
-	airtime=0
-	prec=prec/1000000
-	x_v=v0*m.cos((alpha/180)*m.pi)*m.cos((psi/180)*m.pi)
-	y_v=v0*m.cos((alpha/180)*m.pi)*m.sin((psi/180)*m.pi)
-	z_v=v0*m.sin((alpha/180)*m.pi)
+	airtime = 0
+	prec = prec/1000000
+	x_v = v0 * m.cos((alpha/180)*m.pi)*m.cos((psi/180)*m.pi)
+	y_v = v0 * m.cos((alpha/180)*m.pi)*m.sin((psi/180)*m.pi)
+	z_v = v0 * m.sin((alpha/180)*m.pi)
 	
-	elev=[0]
-	distancex=[0]
-	distancey=[0]
-	while (z_v>0):
-		elev+=[elev[-1]+z_v*prec]
-		new_g+=[g*(R/(R+elev[-1]))**2]
-		airtime+=prec
-		distancex+=[distancex[-1]+x_v*prec]
-		distancey+=[distancey[-1]+y_v*prec]
-		x_v=x_v+(-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2)*prec
-		y_v=y_v+(-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2)*prec
-		z_v=z_v+prec*((-new_g[-1])-(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)
+	#initialize
+	elev = [0] #for elevation (or altitude)
+	distancex = [0] #list for the x_axes positions
+	distancey = [0] #list for the y_axes positions
 
-	while (elev[-1]>0) :
-		elev+=[elev[-1]+z_v*prec]
-		new_g+=[g*(R/(R+elev[-1]))**2]
-		airtime+=prec
-		distancex+=[distancex[-1]+x_v*prec]
-		distancey+=[distancey[-1]+y_v*prec]
-		x_v=x_v+(-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2)*prec
-		y_v=y_v+(-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2)*prec
-		z_v=z_v+prec*((-new_g[-1])+(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)	
+	while (z_v>0): # when the projectile is going up
+		elev += [elev[-1]+z_v*prec]
+		new_g += [g*(R/(R+elev[-1]))**2]
+		airtime += prec
+		distancex += [distancex[-1]+x_v*prec]
+		distancey += [distancey[-1]+y_v*prec]
+		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2) * prec
+		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2) * prec
+		z_v = z_v + prec * ((-new_g[-1])-(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)
 
-	distancex=distancex[0:len(elev)]
-	distancey=distancey[0:len(elev)]
+	while (elev[-1]>0) : #when the projectile is going down
+		elev += [elev[-1]+z_v*prec]
+		new_g += [g*(R/(R+elev[-1]))**2]
+		airtime += prec
+		distancex += [distancex[-1]+x_v*prec]
+		distancey += [distancey[-1]+y_v*prec]
+		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2) * prec
+		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2) * prec
+		z_v = z_v + prec * ((-new_g[-1])+(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)	
+
+	distancex = distancex[0:len(elev)]
+	distancey = distancey[0:len(elev)]
 	print(distancex[-1],distancey[-1])
-
 	return [distancex,distancey,elev]
 
 
-
-
 def calculate_trajectory():
-	psi=float(texta.get())
-	alpha=float(textb.get())
-	v0=float(textc.get())
-	mass=float(textd.get())
+	psi = float(texta.get())
+	alpha = float(textb.get())
+	v0 = float(textc.get())
+	mass = float(textd.get())
 
-	'''psi=30
-	alpha=70
-	v0=800
-	mass=9'''
-	diam=0.12
-	coeff=(0.5*0.25*(diam**2)*m.pi)/4
-	prec=300
+	#diameter and coefficient of friction  are those of 155mm howtizer HE shells
+	diam = 0.12
+	coeff = (0.5*0.25*(diam**2)*m.pi)/4
+	prec = 300
 
-	
-
-	g=calculate_traj(v0,alpha,psi,coeff,mass,prec)
-
+	g = calculate_traj(v0,alpha,psi,coeff,mass,prec)
 	ax = plt.axes(projection='3d')
 	
 	ax.plot3D(g[0],g[1],g[2])
@@ -111,17 +104,9 @@ def calculate_trajectory():
 	ax.view_init(23, -109)
 	plt.show()	
 
-
-
-window=Tk()
-
-
-
+window = Tk()
 window.title("nouvelle composition")
-
 window.geometry('600x600')
-
-
 
 texta = Entry(window,width=10,font=("Arial Bold", 15))
 textb = Entry(window,width=10,font=("Arial Bold", 15))
@@ -152,12 +137,15 @@ btncomm1 = Button(window, text="FIRE !", command=calculate_trajectory)
 btncomm1.place(relx=0.5, rely=0.875, anchor=CENTER)
 
 
+
 '''
+Here is how to impor weather data from OpenweatherMap (you need to register before)
+
 import requests
 import json
 
 # Your OpenWeatherMap API key
-api_key = ""
+api_key = "Input your API key here"
 
 # Location parameters (latitude and longitude)
 lat = 45.5236
@@ -173,9 +161,9 @@ response = requests.get(url)
 # Parse the response
 data = json.loads(response.text)
 
-# Print the temperature in degrees Celsius
+'''
 
-print(data)'''
+print(data)
 
 
 
