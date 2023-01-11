@@ -161,11 +161,10 @@ response = requests.get(url)
 # Parse the response
 data = json.loads(response.text)
 
-'''
+
 
 print(data)
-
-
+'''
 
 
 window.mainloop()
