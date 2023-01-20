@@ -39,6 +39,9 @@ def AD(altitude,g):
 
 
 def calculate_traj(v0,alpha,psi,coeff,mass,prec):
+	global wind_vector
+	wind_vector=[14,120] # speed (m/s) and angle (according to the projectile )
+	
 	#constants:
 	R = 6370000 # earth radius in meters
 	g = 9.80665
@@ -62,9 +65,11 @@ def calculate_traj(v0,alpha,psi,coeff,mass,prec):
 		airtime += prec
 		distancex += [distancex[-1]+x_v*prec]
 		distancey += [distancey[-1]+y_v*prec]
-		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2) * prec
-		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2) * prec
-		z_v = z_v + prec * ((-new_g[-1])-(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)
+		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass) * (x_v-wind_vector[0]*m.cos(wind_vector[1]))**2) * prec
+		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass) * (y_v-wind_vector[0]*m.sin(wind_vector[1]))**2) * prec
+		z_v = z_v + prec*((-new_g[-1]) - (coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)
+		wind_vector[0] += np.random.normal(0,prec/1000000)
+		wind_vector[1] += np.random.normal(0,prec*10/1000000)
 
 	while (elev[-1]>0) : #when the projectile is going down
 		elev += [elev[-1]+z_v*prec]
@@ -72,9 +77,11 @@ def calculate_traj(v0,alpha,psi,coeff,mass,prec):
 		airtime += prec
 		distancex += [distancex[-1]+x_v*prec]
 		distancey += [distancey[-1]+y_v*prec]
-		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*x_v**2) * prec
-		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*y_v**2) * prec
-		z_v = z_v + prec * ((-new_g[-1])+(coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)	
+		x_v = x_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*(x_v-wind_vector[0]*m.cos(wind_vector[1]))**2) * prec
+		y_v = y_v + (-(coeff*AD(elev[-1],new_g[-1])/mass)*(y_v-wind_vector[0]*m.sin(wind_vector[1]))**2) * prec
+		z_v = z_v + prec*((-new_g[-1]) + (coeff*AD(elev[-1],new_g[-1])/mass)*z_v**2)
+		wind_vector[0] += np.random.normal(0,prec/1000000)
+		wind_vector[1] += np.random.normal(0,prec*10/1000000)	
 
 	distancex = distancex[0:len(elev)]
 	distancey = distancey[0:len(elev)]
@@ -91,7 +98,7 @@ def calculate_trajectory():
 	#diameter and coefficient of friction  are those of 155mm howtizer HE shells
 	diam = 0.12
 	coeff = (0.5*0.25*(diam**2)*m.pi)/4
-	prec = 300
+	prec = 1000
 
 	g = calculate_traj(v0,alpha,psi,coeff,mass,prec)
 	ax = plt.axes(projection='3d')
@@ -100,9 +107,18 @@ def calculate_trajectory():
 	ax.plot3D(500*np.sin([i/1000 for i in range(6300)])+np.array([5800 for i in range(6300)]),np.array([8000 for i in range(6300)])+500*np.cos([i/1000 for i in range(6300)]),[0 for i in range(6300)])
 	ax.axis([0,10000,0,10000])
 	ax.set_zlim(0,10000)
-
 	ax.view_init(23, -109)
 	plt.show()	
+	for i in range(70):
+		s_mass = mass + np.random.normal(0,mass/1000)
+		s_coeff = coeff + np.random.normal(0,coeff/1000)
+		s_v0 = v0 + np.random.normal(0,v0/1000)
+		s_psi = psi + np.random.normal(0,psi/400)
+		s_alpha= alpha + np.random.normal(0,alpha/400)
+		g=calculate_traj(s_v0,s_alpha,s_psi,s_coeff,s_mass,prec)#try different trajectory for different parameters
+		plt.plot(g[0][-1],g[1][-1],'ro')
+		print(i)
+	plt.show()
 
 window = Tk()
 window.title("nouvelle composition")
